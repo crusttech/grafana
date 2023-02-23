@@ -134,7 +134,7 @@ func (hs *HTTPServer) setIndexViewData(c *contextmodel.ReqContext) (*dtos.IndexV
 		Sentry:                              &hs.Cfg.Sentry,
 		Nonce:                               c.RequestNonce,
 		ContentDeliveryURL:                  hs.Cfg.GetContentDeliveryURL(hs.License.ContentDeliveryPrefix()),
-		LoadingLogo:                         "public/img/grafana_icon.svg",
+		LoadingLogo:                         "public/img/grafana_icon.png",
 	}
 
 	if !hs.AccessControl.IsDisabled() {
