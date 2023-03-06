@@ -1,0 +1,42 @@
+name: "Release"
+
+# These jobs can be tested with nektos/act tool
+# https://github.com/nektos/act
+#
+# Look for "!env.ACT" in the DRY_RUN expression below
+
+on:
+  push:
+    tags:
+      - '**'
+
+env:
+  DOCKER_IMAGE: crusttech/grafana
+  NODE_VERSION: 16
+  GO_VERSION: 1.19
+
+jobs:
+  build:
+    name: "Build grafana"
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "DOCKER_IMAGE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with: { go-version: "${{ env.GO_VERSION }}" }
+      - name: Setup YARN
+        run: npm install -g yarn @vue/cli-service
+      - name: Build image
+        run: make build-docker-full
+      - name: Retag image
+        run: |
+          ID=$(docker images --filter=reference=grafana/grafana --format "{{.ID}}") && \
+          docker tag $ID ghcr.io/crusttech/grafana:${{ env.BUILD_VERSION }}
+      - uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GH_USERNAME }}
+          password: ${{ secrets.GH_TOKEN }}
+      - name: Push image
+        run: docker push ghcr.io/crusttech/grafana:${{ env.BUILD_VERSION }}
