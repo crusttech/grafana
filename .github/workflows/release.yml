@@ -20,6 +20,12 @@ jobs:
     name: "Build grafana"
     runs-on: ubuntu-latest
     steps:
+      - uses: docker/login-action@v2
+        if: ${{ !env.ACT }}
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GH_USERNAME }}
+          password: ${{ secrets.GH_TOKEN }}
       - run: echo "DOCKER_IMAGE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
       - uses: actions/checkout@v3
       - name: Setup Go
@@ -28,15 +34,12 @@ jobs:
       - name: Setup YARN
         run: npm install -g yarn @vue/cli-service
       - name: Build image
+        if: ${{ !env.ACT }}
         run: make build-docker-full
       - name: Retag image
+        if: ${{ !env.ACT }}
         run: |
-          ID=$(docker images --filter=reference=grafana/grafana --format "{{.ID}}") && \
-          docker tag $ID ghcr.io/crusttech/grafana:${{ env.BUILD_VERSION }}
-      - uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ secrets.GH_USERNAME }}
-          password: ${{ secrets.GH_TOKEN }}
+          docker tag grafana/grafana:dev ghcr.io/crusttech/grafana:${{ env.DOCKER_IMAGE_TAG }}
       - name: Push image
-        run: docker push ghcr.io/crusttech/grafana:${{ env.BUILD_VERSION }}
+        if: ${{ !env.ACT }}
+        run: docker push ghcr.io/crusttech/grafana:${{ env.DOCKER_IMAGE_TAG }}
