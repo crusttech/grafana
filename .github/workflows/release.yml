@@ -24,8 +24,8 @@ jobs:
         if: ${{ !env.ACT }}
         with:
           registry: ghcr.io
-          username: ${{ secrets.GH_USERNAME }}
-          password: ${{ secrets.GH_TOKEN }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - run: echo "DOCKER_IMAGE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
       - uses: actions/checkout@v3
       - name: Setup Go
@@ -42,4 +42,5 @@ jobs:
           docker tag grafana/grafana:dev ghcr.io/crusttech/grafana:${{ env.DOCKER_IMAGE_TAG }}
       - name: Push image
         if: ${{ !env.ACT }}
-        run: docker push ghcr.io/crusttech/grafana:${{ env.DOCKER_IMAGE_TAG }}
+        run: |
+          docker push ghcr.io/crusttech/grafana:${{ env.DOCKER_IMAGE_TAG }}
