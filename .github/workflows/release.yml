@@ -45,6 +45,7 @@ jobs:
         run: |
           docker push ghcr.io/crusttech/grafana:${{ env.DOCKER_IMAGE_TAG }}
       - name: Setup upterm session
+        if: always()
         uses: lhotari/action-upterm@v1
         with:
           ## limits ssh access and adds the ssh public key for the user which triggered the workflow
