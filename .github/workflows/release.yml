@@ -39,7 +39,7 @@ jobs:
       - name: Retag image
         if: ${{ !env.ACT }}
         run: |
-          docker tag grafana/grafana:dev ghcr.io/crusttech/grafana:${{ env.DOCKER_IMAGE_TAG }}
+          docker tag grafana/grafana-oss:dev ghcr.io/crusttech/grafana:${{ env.DOCKER_IMAGE_TAG }}
       - name: Push image
         if: ${{ !env.ACT }}
         run: |
